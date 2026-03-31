@@ -13,10 +13,9 @@ body {
     padding: 20px;
 }
 
-/* Login box */
+/* Login */
 #login {
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -44,7 +43,6 @@ button {
     border-radius: 8px;
     background: #38bdf8;
     cursor: pointer;
-    margin-top: 5px;
 }
 
 /* App */
@@ -52,13 +50,11 @@ button {
     display: none;
 }
 
-/* Title */
 h1 {
     text-align: center;
     color: #38bdf8;
 }
 
-/* Form */
 .form {
     display: flex;
     gap: 10px;
@@ -67,7 +63,6 @@ h1 {
     margin-bottom: 20px;
 }
 
-/* Table */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -88,29 +83,17 @@ th {
 tr:nth-child(even) {
     background: #273449;
 }
-.status-watching {
-    color: #38bdf8;
-}
 
-.status-finished {
-    color: #4ade80; /* green */
-    font-weight: bold;
-}
-
-.status-watching {
-    color: #38bdf8; /* blue */
-}
-
-.status-planned {
-    color: #facc15; /* yellow */
-}
+.status-finished { color: #4ade80; font-weight: bold; }
+.status-watching { color: #38bdf8; }
+.status-planned { color: #facc15; }
 </style>
 
 </head>
 
 <body>
 
-<!-- 🔐 LOGIN -->
+<!-- LOGIN -->
 <div id="login">
     <div class="login-box">
         <h2>🔐 Enter Password</h2>
@@ -121,7 +104,7 @@ tr:nth-child(even) {
     </div>
 </div>
 
-<!-- 🎬 APP -->
+<!-- APP -->
 <div id="app">
 
 <h1>🎬 My Watchlist</h1>
@@ -134,8 +117,8 @@ tr:nth-child(even) {
     </select>
     <input type="text" id="genre" placeholder="Genre">
     <input type="text" id="time" placeholder="Watch Time">
+    <input type="date" id="endDate">
     <input type="text" id="evaluation" placeholder="Evaluation">
-    <input type="date" id="viewing end date" placeholder="Viewing End Date">
     <select id="status">
         <option>Watching</option>
         <option>Finished</option>
@@ -151,11 +134,10 @@ tr:nth-child(even) {
     <th>Type</th>
     <th>Genre</th>
     <th>Time</th>
-    <th>Status</th>
-    <th>Evaluation</th>
-    <th>Viewing End Date</th>
+    <th>End Date</th>
+      <th>Evaluation</th>
+      <th>Status</th>
     <th>Action</th>
-
 </tr>
 </thead>
 <tbody id="list"></tbody>
@@ -165,17 +147,11 @@ tr:nth-child(even) {
 
 <script>
 
-/* 🔐 LOGIN WITH MULTIPLE PASSWORDS */
+/* LOGIN */
 function checkPassword() {
     const pass = document.getElementById("password").value;
 
-    const validPasswords = [
-        "YJ2026",
-        "Tennis123",
-        "Admin2025",
-        "123",
-        "Admine123"
-    ];
+    const validPasswords = ["YJ2026","Tennis123","Admin2025","123","Admine123"];
 
     if (validPasswords.includes(pass)) {
         document.getElementById("login").style.display = "none";
@@ -186,14 +162,22 @@ function checkPassword() {
     }
 }
 
-/* 📦 STORAGE */
+/* STORAGE */
 let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
 
 function save() {
     localStorage.setItem("watchlist", JSON.stringify(watchlist));
 }
 
-/* 📋 DISPLAY */
+/* STATUS COLOR */
+function getStatusClass(status) {
+    if (status === "Finished") return "status-finished";
+    if (status === "Watching") return "status-watching";
+    if (status === "Planned") return "status-planned";
+    return "";
+}
+
+/* DISPLAY */
 function render() {
     const list = document.getElementById("list");
     list.innerHTML = "";
@@ -205,28 +189,27 @@ function render() {
             <td>${item.type}</td>
             <td>${item.genre}</td>
             <td>${item.time}</td>
+            <td>${item.endDate}</td>
+            <td>${item.evaluation}</td>
             <td class="${getStatusClass(item.status)}">${item.status}</td>
-            <td><button class="delete" onclick="removeItem(${index})">X</button></td>
+            <td><button onclick="removeItem(${index})">X</button></td>
         </tr>
         `;
     });
 }
-function getStatusClass(status) {
-    if (status === "Finished") return "status-finished";
-    if (status === "Watching") return "status-watching";
-    if (status === "Planned") return "status-planned";
-     return "";
-/* ➕ ADD */
+
+/* ADD */
 function addItem() {
     const item = {
         title: document.getElementById("title").value,
         type: document.getElementById("type").value,
         genre: document.getElementById("genre").value,
         time: document.getElementById("time").value,
+        endDate: document.getElementById("endDate").value,
+        evaluation: document.getElementById("evaluation").value,
         status: document.getElementById("status").value
     };
 
-    }
     if (!item.title) return;
 
     watchlist.push(item);
@@ -234,7 +217,7 @@ function addItem() {
     render();
 }
 
-/* ❌ DELETE */
+/* DELETE */
 function removeItem(index) {
     watchlist.splice(index, 1);
     save();
